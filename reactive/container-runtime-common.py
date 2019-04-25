@@ -20,4 +20,3 @@ def enable_grub_cgroups():
         hookenv.log('Calling enable_grub_cgroups.sh and rebooting machine.')
         check_call(['scripts/enable_grub_cgroups.sh'])
         set_state('cgroups.modified')
-
