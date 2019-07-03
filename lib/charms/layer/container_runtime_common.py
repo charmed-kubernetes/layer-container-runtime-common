@@ -13,19 +13,17 @@ client_crt_path = certs_dir / 'client.crt'
 client_key_path = certs_dir / 'client.key'
 
 
-def manage_registry_certs(subdir, remove=False):
+def manage_registry_certs(cert_dir, remove=False):
     """
     Add or remove TLS data for a specific registry.
 
-    When present, the docker client will use certificates when communicating
-    with a specific registry.
+    When present, the container runtime will use certificates when
+    communicating with a specific registry.
 
-    :param subdir: String subdirectory to store the client certificates
-    :param remove: Boolean True to remove cert data; False to add it
+    :param cert_dir: String directory to store the client certificates
+    :param remove: Boolean remove cert data (defauts to add)
     :return: None
     """
-    cert_dir = '/etc/docker/certs.d/{}'.format(subdir)
-
     if remove:
         if os.path.isdir(cert_dir):
             log('Disabling registry TLS: {}.'.format(cert_dir))
@@ -33,8 +31,8 @@ def manage_registry_certs(subdir, remove=False):
     else:
         os.makedirs(cert_dir, exist_ok=True)
         client_tls = {
-            client_crt_path: '{}/client.cert'.format(cert_dir),
-            client_key_path: '{}/client.key'.format(cert_dir),
+            client_crt_path: os.path.join(cert_dir, 'client.cert'),
+            client_key_path: os.path.join(cert_dir, 'client.key')
         }
         for f, link in client_tls.items():
             try:
