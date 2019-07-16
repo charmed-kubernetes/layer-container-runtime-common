@@ -32,7 +32,6 @@ def get_hosts(config):
             except ValueError:
                 hosts.append(address)
         parsed_hosts = ",".join(hosts)
-        print("Hosts: {}".format(parsed_hosts))
         return parsed_hosts
 
 
