@@ -23,7 +23,7 @@ def get_hosts(config):
         for address in config.get('NO_PROXY', "").split(","):
             address = address.strip()
             try:
-                net = ipaddress.ip_network(address.strip())
+                net = ipaddress.ip_network(address)
                 ip_addresses = [str(ip) for ip in net.hosts()]
                 if ip_addresses == []:
                     hosts.append(address)
