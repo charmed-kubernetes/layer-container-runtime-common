@@ -17,6 +17,25 @@ client_crt_path = certs_dir / 'client.crt'
 client_key_path = certs_dir / 'client.key'
 
 
+def get_hosts(config):
+    if config is not None:
+        hosts = []
+        for address in config.get('NO_PROXY', "").split(","):
+            address = address.strip()
+            try:
+                net = ipaddress.ip_network(address.strip())
+                ip_addresses = [str(ip) for ip in net.hosts()]
+                if ip_addresses == []:
+                    hosts.append(address)
+                else:
+                    hosts += ip_addresses
+            except ValueError:
+                hosts.append(address)
+        parsed_hosts = ",".join(hosts)
+        print("Hosts: {}".format(parsed_hosts))
+        return parsed_hosts
+
+
 def check_for_juju_https_proxy(config):
     # If juju environment variables are defined, take precedent
     # over config.yaml.
@@ -24,23 +43,15 @@ def check_for_juju_https_proxy(config):
     # &: https://bugs.launchpad.net/charm-layer-docker/+bug/1831712
     environment_config = env_proxy_settings()
     configuration = dict(config())
-    if environment_config is not None:
-        hosts = []
-        for address in environment_config.get('NO_PROXY', "").split(","):
-            try:
-                net = ipaddress.ip_network(address)
-                ip_addresses = [str(ip) for ip in net]
-                hosts.append(ip_addresses)
-            except ValueError:
-                hosts.append(address)
 
-        no_proxy = ",".join(hosts)
-        environment_config.update({
-            'NO_PROXY': no_proxy
-        })
-        configuration.update(environment_config)
+    no_proxy = get_hosts(environment_config)
 
-        return configuration
+    environment_config.update({
+        'NO_PROXY': no_proxy
+    })
+    configuration.update(environment_config)
+
+    return configuration
 
 
 def manage_registry_certs(cert_dir, remove=False):
