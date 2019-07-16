@@ -47,7 +47,8 @@ def check_for_juju_https_proxy(config):
     no_proxy = get_hosts(environment_config)
 
     environment_config.update({
-        'NO_PROXY': no_proxy
+        'NO_PROXY': no_proxy,
+        'no_proxy': no_proxy
     })
     configuration.update(environment_config)
 
