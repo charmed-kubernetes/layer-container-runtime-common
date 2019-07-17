@@ -35,16 +35,31 @@ def get_hosts(config):
         return parsed_hosts
 
 
+def merge_config(config, environment):
+
+    for key in ['HTTP_PROXY', 'http_proxy', 'HTTPS_PROXY', 'https_proxy',
+                'NO_PROXY', 'no_proxy']:
+        # We make the assumption here that
+        # all environment keys are upper and lower case.
+        if config.get(key.lower(), '') == '' and \
+               config.get(key.upper()) == '' and environment.get(key, '') != '':
+            value = environment.get(key)
+            config[key.upper()] = value
+            config[key.lower()] = value
+
+    return config
+
+
 def check_for_juju_https_proxy(config):
     # If juju environment variables are defined, take precedent
     # over config.yaml.
     # See: https://github.com/dshcherb/charm-helpers/blob/eba3742de6a7023f22778ba58fbbb0ac212d2ea6/charmhelpers/core/hookenv.py#L1455
     # &: https://bugs.launchpad.net/charm-layer-docker/+bug/1831712
     environment_config = env_proxy_settings()
-    modified_config = dict(config())
+    charm_config = dict(config())
 
     if environment_config is None:
-        return modified_config
+        return charm_config
 
     no_proxy = get_hosts(environment_config)
 
@@ -52,9 +67,8 @@ def check_for_juju_https_proxy(config):
         'NO_PROXY': no_proxy,
         'no_proxy': no_proxy
     })
-    modified_config.update(environment_config)
 
-    return modified_config
+    return merge_config(charm_config, environment_config)
 
 
 def manage_registry_certs(cert_dir, remove=False):
