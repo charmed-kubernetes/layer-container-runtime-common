@@ -14,7 +14,6 @@ def test_get_hosts():
     ENVIRONMENT = {
         'HTTPS_PROXY': 'https://proxy.hop',
         'HTTP_PROXY': 'http://proxy.hop',
-        'NO_PROXY': '',
         'no_proxy': 'not tha proxy'
     }
 
@@ -25,4 +24,29 @@ def test_get_hosts():
         'https_proxy': 'https://hop.proxy',
         'http_proxy': 'http://proxy.hop',
         'HTTP_PROXY': 'http://proxy.hop'
+    }
+
+
+def test_get_hosts_no_local_conf():
+    CONFIG = {
+        'NO_PROXY': '',
+        'https_proxy': '',
+        'HTTP_PROXY': '',
+
+    }
+    ENVIRONMENT = {
+        'HTTPS_PROXY': 'https://proxy.hop',
+        'HTTP_PROXY': 'http://proxy.hop',
+        'no_proxy': 'not tha proxy'
+    }
+
+    merged = merge_config(CONFIG, ENVIRONMENT)
+
+    assert merged == {
+        'HTTPS_PROXY': 'https://proxy.hop',
+        'https_proxy': 'https://proxy.hop',
+        'HTTP_PROXY': 'http://proxy.hop',
+        'http_proxy': 'http://proxy.hop',
+        'NO_PROXY': 'not tha proxy',
+        'no_proxy': 'not tha proxy'
     }

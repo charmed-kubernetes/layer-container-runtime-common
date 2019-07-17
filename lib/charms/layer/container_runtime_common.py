@@ -42,7 +42,7 @@ def merge_config(config, environment):
         # We make the assumption here that
         # all environment keys are upper and lower case.
         if config.get(key.lower(), '') == '' and \
-               config.get(key.upper()) == '' and environment.get(key, '') != '':
+               config.get(key.upper(), '') == '' and environment.get(key, '') != '':
             value = environment.get(key)
             config[key.upper()] = value
             config[key.lower()] = value
