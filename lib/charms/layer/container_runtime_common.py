@@ -59,7 +59,7 @@ def check_for_juju_https_proxy(config):
     charm_config = dict(config())
 
     if environment_config is None or \
-            charm_config.get('disable-proxy'):
+            charm_config.get('disable-juju-proxy'):
         return charm_config
 
     no_proxy = get_hosts(environment_config)
