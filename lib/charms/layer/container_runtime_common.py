@@ -51,10 +51,8 @@ def merge_config(config, environment):
 
 
 def check_for_juju_https_proxy(config):
-    # If juju environment variables are defined, take precedent
-    # over config.yaml.
-    # See: https://github.com/dshcherb/charm-helpers/blob/eba3742de6a7023f22778ba58fbbb0ac212d2ea6/charmhelpers/core/hookenv.py#L1455
-    # &: https://bugs.launchpad.net/charm-layer-docker/+bug/1831712
+    # If config values are defined take precedent.
+    # LP: https://bugs.launchpad.net/charm-layer-docker/+bug/1831712
     environment_config = env_proxy_settings()
     charm_config = dict(config())
 
