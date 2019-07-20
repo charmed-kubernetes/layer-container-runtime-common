@@ -36,23 +36,28 @@ def get_hosts(config):
 
 
 def merge_config(config, environment):
+    keys = ['HTTP_PROXY', 'HTTPS_PROXY', 'NO_PROXY']
 
-    for key in ['HTTP_PROXY', 'http_proxy', 'HTTPS_PROXY', 'https_proxy',
-                'NO_PROXY', 'no_proxy']:
-        # We make the assumption here that
-        # all environment keys are upper and lower case.
+    for key in keys:
         if config.get(key.lower(), '') == '' and \
-               config.get(key.upper(), '') == '' and environment.get(key, '') != '':
-            value = environment.get(key)
-            config[key.upper()] = value
-            config[key.lower()] = value
+            config.get(key, '') == '':
+            value = environment.get(key) if environment.get(key, '') != '' else environment.get(key.lower(), '')
+
+            if value != '':
+                config[key] = value
+                config[key.lower()] = value
+    # Normalize
+    for key in keys:
+        value = config.get(key) if config.get(key, '') != '' else config.get(key.lower(), '')
+        config[key] = value
+        config[key.lower()] = value
 
     return config
 
 
 def check_for_juju_https_proxy(config):
-    # If config values are defined take precedent.
-    # LP: https://bugs.launchpad.net/charm-layer-docker/+bug/1831712
+# If config values are defined take precedent.
+# LP: https://bugs.launchpad.net/charm-layer-docker/+bug/1831712
     environment_config = env_proxy_settings()
     charm_config = dict(config())
 
