@@ -18,9 +18,13 @@ client_key_path = certs_dir / 'client.key'
 
 
 def get_hosts(config):
+    """
+    :param config: Dictionary
+    :return: String
+    """
     if config is not None:
         hosts = []
-        for address in config.get('NO_PROXY', "").split(","):
+        for address in config.get('NO_PROXY', '').split(','):
             address = address.strip()
             try:
                 net = ipaddress.ip_network(address)
@@ -31,24 +35,31 @@ def get_hosts(config):
                     hosts += ip_addresses
             except ValueError:
                 hosts.append(address)
-        parsed_hosts = ",".join(hosts)
+        parsed_hosts = ','.join(hosts)
         return parsed_hosts
 
 
 def merge_config(config, environment):
+    """
+    :param config: Dictionary
+    :param environment: Dictionary
+    :return: Dictionary
+    """
     keys = ['HTTP_PROXY', 'HTTPS_PROXY', 'NO_PROXY']
 
     for key in keys:
         if config.get(key.lower(), '') == '' and \
-            config.get(key, '') == '':
-            value = environment.get(key) if environment.get(key, '') != '' else environment.get(key.lower(), '')
+                config.get(key, '') == '':
+            value = environment.get(key) if environment.get(key, '') != '' \
+                else environment.get(key.lower(), '')
 
             if value != '':
                 config[key] = value
                 config[key.lower()] = value
     # Normalize
     for key in keys:
-        value = config.get(key) if config.get(key, '') != '' else config.get(key.lower(), '')
+        value = config.get(key) if config.get(key, '') != '' \
+            else config.get(key.lower(), '')
         config[key] = value
         config[key.lower()] = value
 
@@ -56,8 +67,14 @@ def merge_config(config, environment):
 
 
 def check_for_juju_https_proxy(config):
-# If config values are defined take precedent.
-# LP: https://bugs.launchpad.net/charm-layer-docker/+bug/1831712
+    """
+    If config values are defined take precedent.
+
+    LP: https://bugs.launchpad.net/charm-layer-docker/+bug/1831712
+
+    :param config: Dictionary
+    :return: Dictionary
+    """
     environment_config = env_proxy_settings()
     charm_config = dict(config())
 
