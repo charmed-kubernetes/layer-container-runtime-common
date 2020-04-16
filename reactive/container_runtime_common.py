@@ -3,9 +3,9 @@ from subprocess import check_call
 
 from charms.layer import status
 from charms.reactive import (
-    data_changed,
+    clear_flag,
     set_flag,
-    when_any,
+    when,
     when_not
 )
 
@@ -28,19 +28,26 @@ def enable_grub_cgroups():
         set_flag('cgroups.modified')
 
 
-@when_any('config.set.custom-registry-ca', 'config.changed.custom-registry-ca')
+@when('config.changed.custom-registry-ca')
 def install_custom_ca():
     """
     Installs a configured CA cert into the system-wide location.
     """
     ca_cert = hookenv.config().get('custom-registry-ca')
-    if ca_cert and data_changed('custom-registry-ca', ca_cert):
+    if ca_cert:
         try:
             # decode to bytes, as that's what install_ca_cert wants
             _ca = b64decode(ca_cert)
         except Exception:
-            status.blocked('Invalid value for custom-registry-ca config')
+            status.blocked('Invalid base64 value for custom-registry-ca config')
             return
         else:
-            hookenv.log('Installing custom registry CA')
             host.install_ca_cert(_ca, name='juju-custom-registry')
+            charm = hookenv.charm_name()
+            hookenv.log('Custom registry CA has been installed for {}'.format(charm))
+
+            # NB: containerd auto restarts when config changes. docker does not,
+            # so manage the appropriate layer flags to recycle dockerd.
+            if (charm == 'docker'):
+                clear_flag('docker.available')
+                set_flag('docker.restart')
