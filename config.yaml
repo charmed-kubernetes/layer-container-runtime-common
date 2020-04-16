@@ -12,3 +12,10 @@ options:
     description: |
       Ignore juju-http(s) proxy settings on this charm.
       If set to true, all juju https proxy settings will be ignored
+  custom-registry-ca:
+    type: string
+    default: ""
+    description: |
+      Base64 encoded Certificate Authority (CA) bundle. Setting this config
+      allows container runtimes to pull images from registries with TLS
+      certificates signed by an external CA.

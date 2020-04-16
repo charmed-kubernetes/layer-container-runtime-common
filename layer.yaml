@@ -1,1 +1,4 @@
 repo: https://github.com/juju-solutions/layer-container-runtime-common.git
+includes:
+- layer:basic
+- layer:status
