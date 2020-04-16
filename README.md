@@ -22,10 +22,10 @@ rest of the Charmed Kubernetes cluster.
 
 ## Tests
 
-To run tests use:
+Run `tox` in the root directory for this layer:
 
 ```bash
-python -m pytest ./tests
+tox
 ```
 
 <!-- LINKS -->

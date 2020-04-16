@@ -1,4 +1,3 @@
-import pytest
 from lib.charms.layer.container_runtime_common import (
     get_hosts
 )
