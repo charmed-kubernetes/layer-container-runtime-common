@@ -46,8 +46,12 @@ def install_custom_ca():
             charm = hookenv.charm_name()
             hookenv.log('Custom registry CA has been installed for {}'.format(charm))
 
-            # NB: containerd auto restarts when config changes. docker does not,
-            # so manage the appropriate layer flags to recycle dockerd.
-            if (charm == 'docker'):
+            # manage appropriate charm flags to recycle the runtime daemon
+            if charm == 'docker':
                 clear_flag('docker.available')
                 set_flag('docker.restart')
+            elif charm == 'containerd':
+                set_flag('containerd.restart')
+            else:
+                hookenv.log('Unknown runtime: {}. '
+                            'Cannot request a service restart.'.format(charm))
