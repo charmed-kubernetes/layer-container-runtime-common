@@ -9,6 +9,7 @@ from charmhelpers.core.hookenv import (
 )
 
 
+MAX_NO_PROXY_LENGTH = 128 * 1024  # 128kB
 certs_dir = Path('/root/cdk')
 ca_crt_path = certs_dir / 'ca.crt'
 server_crt_path = certs_dir / 'server.crt'
@@ -24,7 +25,8 @@ def get_hosts(config):
     """
     if config is not None:
         hosts = []
-        for address in config.get('NO_PROXY', '').split(','):
+        no_proxy = config.get('NO_PROXY', '')
+        for address in no_proxy.split(','):
             address = address.strip()
             try:
                 net = ipaddress.ip_network(address)
@@ -36,6 +38,12 @@ def get_hosts(config):
             except ValueError:
                 hosts.append(address)
         parsed_hosts = ','.join(hosts)
+        if len(parsed_hosts.encode()) >= MAX_NO_PROXY_LENGTH:
+            log(
+                f'NO_PROXY length exceeded {MAX_NO_PROXY_LENGTH} bytes,'
+                ' using original value.'
+            )
+            return no_proxy
         return parsed_hosts
 
 
